@@ -43,7 +43,6 @@ export class UserController {
     return this.userService.refreshAccesToken(email);
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Put(':id/password')
   async changePassword(@Param('id') id: string, @Body() dto: ChangePasswordDto) {
     return this.userService.changePassword(id, dto);

@@ -65,6 +65,10 @@ import {
   export class ChangePasswordDto {
     @IsNotEmpty()
     @IsString()
+    verificationCode: string;
+
+    @IsNotEmpty()
+    @IsString()
     currentPassword: string;
   
     @IsNotEmpty()

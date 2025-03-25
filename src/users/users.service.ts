@@ -180,6 +180,10 @@ export class UserService {
         const user = await this.userModel.findById(id);
         if (!user) throw new NotFoundException('User not found');
 
+        const emailVerification = await this.emailVerificationModel.findOne({ email: user.email });
+        if (!emailVerification) throw new NotFoundException('Verification email and code not found. Please request a new verification code.');
+        if (emailVerification.verificationCode !== changePasswordDto.verificationCode) throw new UnauthorizedException('Invalid code');
+
         const isValid = await bcrypt.compare(changePasswordDto.currentPassword, user.password);
         if (!isValid) throw new UnauthorizedException('Current password is incorrect');
 
