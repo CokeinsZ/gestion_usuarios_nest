@@ -10,6 +10,9 @@ export class EmailVerification {
 
     @Prop({ required: true })
     verificationCode: string;
+
+    @Prop({ required: true })
+    verificationCodeExpires: Date;
 }
 
 export const EmailVerificationSchema = SchemaFactory.createForClass(EmailVerification);

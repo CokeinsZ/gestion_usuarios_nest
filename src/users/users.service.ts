@@ -69,10 +69,12 @@ export class UserService {
             {
                 email,
                 verificationCode,
-                verificationCodeExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                verificationCodeExpires: new Date(Date.now() + 5 * 60 * 1000),
             }, // Datos a actualizar o insertar
             { upsert: true, new: true } // Crear si no existe y devolver el documento actualizado
         );
+
+        console.log(newVerificationCode);
 
         await this.transporter.sendMail({
             from: process.env.EMAIL_FROM,
@@ -120,6 +122,7 @@ export class UserService {
         const emailVerification = await this.emailVerificationModel.findOne({ email: verifyUserDto.email });
         if (!emailVerification) throw new NotFoundException('Verification email and code not found. Please request a new verification code.');
         if (emailVerification.verificationCode !== verifyUserDto.verificationCode) throw new UnauthorizedException('Invalid code');
+        if (!emailVerification.verificationCodeExpires || emailVerification.verificationCodeExpires < new Date()) throw new UnauthorizedException('Code expired, please request a new one');
 
         user.isVerified = true;
         user.verificationCode = undefined;
@@ -183,6 +186,8 @@ export class UserService {
         const emailVerification = await this.emailVerificationModel.findOne({ email: user.email });
         if (!emailVerification) throw new NotFoundException('Verification email and code not found. Please request a new verification code.');
         if (emailVerification.verificationCode !== changePasswordDto.verificationCode) throw new UnauthorizedException('Invalid code');
+        if (!emailVerification.verificationCodeExpires || emailVerification.verificationCodeExpires < new Date()) throw new UnauthorizedException('Code expired, please request a new one');
+
 
         const isValid = await bcrypt.compare(changePasswordDto.currentPassword, user.password);
         if (!isValid) throw new UnauthorizedException('Current password is incorrect');
